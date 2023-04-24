@@ -39,6 +39,4 @@ return {
 			end
 		end
 	}
-
-
 }
