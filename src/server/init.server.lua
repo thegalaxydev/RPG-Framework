@@ -1,19 +1,13 @@
 local Players = game:GetService("Players")
-
 local Directory = require(game:GetService("ReplicatedStorage").Directory)
-local Item = Directory.Retrieve("Class/Item")
-print(Item)
 
+local CharacterService = Directory.Retrieve("Services/CharacterService")
 
-game.Players.PlayerAdded:Connect(function(Player: Player)
-	local Apple = Directory.Retrieve("Item/Apple")
-	
-	local newApple = Item.new(Apple)
+Players.PlayerAdded:Connect(function(player: Player)
+	local character = CharacterService.LoadCharacter(player)
+	print(character.MaxHealth)
+end)
 
-	Player.CharacterAdded:Connect(function(Character: Model)
-		newApple:Equip(Player)
-
-		wait(6)
-		newApple:Unequip(Player)
-	end)
+Players.PlayerRemoving:Connect(function(player: Player)
+	CharacterService.UnloadCharacter(player)
 end)

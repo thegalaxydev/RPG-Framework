@@ -6,7 +6,7 @@ return {
 	MaxStack = 10,
 
 	Callbacks = {
-		Equip = function(self, player)
+		Equip = function(self, player: Player)
 			local character = player.Character or player.CharacterAdded:Wait()
 			local model = self.Model:Clone()
 			model.Parent = character
@@ -22,14 +22,18 @@ return {
 			m6d.C0 = CFrame.new(0, -main.Size.Y / 2, 0) * CFrame.Angles(math.rad(-90), 0, 0)
 
 			self.Equipped = model
+
+			return true
 		end,
 
-		Unequip = function(self, player)
-			if not self.Equipped then return end
+		Unequip = function(self, player: Player)
+			if not self.Equipped then return false end
 			self.Equipped:Destroy()
+
+			return true
 		end,
 
-		Use = function(self, player)
+		Use = function(self, player: Player)
 			if not self.Equipped then return end
 			print(self.Count)
 			self.Count -= 1
@@ -37,6 +41,8 @@ return {
 			if self.Count <= 0 then
 				self:Unequip(player)
 			end
+			
+			return true
 		end
 	}
 }

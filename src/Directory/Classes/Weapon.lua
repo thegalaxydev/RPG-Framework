@@ -21,5 +21,20 @@ function Weapon.new(params: WeaponParameters)
 	self.Damage = params.Damage
 	self.Range = params.Range
 
-	return self
+	local Proxy = setmetatable({}, {	
+		__newindex = function(tab, index, value)
+			if tab.Changed then
+				tab.Changed:Fire(index, value)
+			end
+			self[index] = value
+		end,
+
+		__index = function(tab, index)
+			return self[index]
+		end
+	})
+
+	return Proxy
 end
+
+return Weapon
