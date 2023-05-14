@@ -6,6 +6,9 @@
     "ReplicatedStorage": {
       "Directory": {
         "$path": "src/Directory"
+      },
+      "ExternalDependencies": {
+        "$path": "external"
       }
     },
 

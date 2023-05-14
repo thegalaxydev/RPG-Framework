@@ -14,8 +14,10 @@ type WeaponParameters = {
 
 export type Weapon = typeof(setmetatable({}, Weapon)) & WeaponParameters & Item
 
+setmetatable(Weapon, Item)
+
 function Weapon.new(params: WeaponParameters)
-	local self = setmetatable(Item.new(params), Weapon)
+	local self = setmetatable(Item.new(params):GetObject(), Weapon)
 
 	self.AttackSpeed = params.AttackSpeed
 	self.Damage = params.Damage
@@ -35,6 +37,10 @@ function Weapon.new(params: WeaponParameters)
 	})
 
 	return Proxy
+end
+
+function Weapon:print()
+	print("Hello World!")
 end
 
 return Weapon

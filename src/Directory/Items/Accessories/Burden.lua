@@ -1,4 +1,5 @@
 local CharacterService = require(script.Parent.Parent.Parent.Services.CharacterService)
+local System = require(script.Parent.Parent.Parent.System)
 
 return {
 	Name = "The One Ring",
@@ -11,10 +12,9 @@ return {
 		Equip = function(self, player: Player)
 			local character = CharacterService.GetCharacterFromPlayer(player)
 			character.Burdened = true
-			-- System.SendMessage("One ring to rule them all, one ring to find them. One ring to bring them all, and in the darkness bind them.", player)
-			-- System.SendMessage("You are burdened with power. You have left the physical world.", player)
-
-			-- System.ApplyEffect(player, "Invisible", math.huge)
+			System.SendMessage("One ring to rule them all, one ring to find them. One ring to bring them all, and in the darkness bind them.", player)
+			System.SendMessage("You are burdened with power. You have left the physical world.", player)
+			CharacterService.Effects["Invisible"].Apply(character, math.huge)
 
 			return true
 		end,
@@ -22,6 +22,8 @@ return {
 		Unequip = function(self, player: Player)
 			local character = CharacterService.GetCharacterFromPlayer(player)
 			character.Burdened = false
+
+			CharacterService.Effects["Invisible"].Remove(character)
 
 			return true
 		end,

@@ -2,6 +2,10 @@ local Character = {}
 Character.__index = Character
 
 local Event = require(script.Parent.Event)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Item = require(script.Parent.Item)
 
 export type Character = typeof(setmetatable({}, Character))
 
@@ -22,6 +26,8 @@ function Character.new() : Character
 	self.Mana = 0
 	self.MaxMana = 0
 
+	self.Player = nil
+
 	self.AttackSpeed = 0
 	self.Armor = 0
 	self.Speed = 0
@@ -34,13 +40,14 @@ function Character.new() : Character
 
 	self.Inventory = {}
 	self.Equipment = {
-		Weapon = nil,
 		Head = nil,
 		Torso = nil,
 		Arms = nil,
 		Legs = nil,
 		Feet = nil
 	}
+
+	self.EquippedItem = nil
 
 	self.Changed = Event.new()
 	self.Died = Event.new()
@@ -50,6 +57,15 @@ function Character.new() : Character
 			if tab.Changed then
 				tab.Changed:Fire(index, value)
 			end
+
+			if RunService:IsServer() and ReplicatedStorage:FindFirstChild("Remotes") then
+				local Remote = ReplicatedStorage.Remotes:FindFirstChild("ClientReplication")
+				
+				if Remote then
+					Remote:FireAllClients("CharacterChanged", index, value)
+				end
+			end
+
 			self[index] = value
 		end,
 
@@ -64,6 +80,24 @@ function Character.new() : Character
 			self.Died:Fire()
 		end
 	end
+
+	function Character:EquipItem(Item: Item.Item)
+		if self.EquippedItem then
+			self.EquippedItem:Unequip(self.Owner)
+		end
+
+		self.EquippedItem = Item
+		Item:Equip(self.Owner)
+	end
+
+	function Character:UnequipItem()
+		if self.EquippedItem then
+			self.EquippedItem:Unequip(self.Owner)
+			self.EquippedItem = nil
+		end
+	end
+
+	
 
 	return Proxy
 end
