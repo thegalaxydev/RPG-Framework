@@ -1,7 +1,7 @@
 return {
 	Name = "Apple",
 	Cost = 10,
-	Model = game:GetService("ReplicatedStorage").Models.Food.Apple,
+	Model = game:GetService("ReplicatedStorage").Assets.Models.Food.Apple,
 	Icon = "rbxassetid://0",
 	MaxStack = 10,
 

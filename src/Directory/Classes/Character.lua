@@ -52,11 +52,44 @@ function Character.new() : Character
 	self.Changed = Event.new()
 	self.Died = Event.new()
 
-	local Proxy = setmetatable({}, {	
+	function self:TakeDamage(Damage: number)
+		self.Health = self.Health - Damage
+		if self.Health <= 0 then
+			self.Died:Fire()
+		end
+	end
+
+	function self:EquipItem(Item: Item.Item)
+		if self.EquippedItem then
+			self.EquippedItem:Unequip(self.Owner)
+		end
+		
+		
+		self.EquippedItem = Item
+		Item:Equip(self.Owner)
+	end
+
+	function self:UnequipItem()
+		if self.EquippedItem then
+			self.EquippedItem:Unequip(self.Owner)
+			self.EquippedItem = nil
+		end
+	end
+
+	function self:UseItem()
+		print(self.EquippedItem)
+		if self.EquippedItem then
+			self.EquippedItem:Use(self.Owner)
+		end
+	end
+
+	local Proxy = setmetatable({GetObject = function() return self end}, {	
 		__newindex = function(tab, index, value)
 			if tab.Changed then
 				tab.Changed:Fire(index, value)
 			end
+
+			print(index, value)
 
 			if RunService:IsServer() and ReplicatedStorage:FindFirstChild("Remotes") then
 				local Remote = ReplicatedStorage.Remotes:FindFirstChild("ClientReplication")
@@ -73,32 +106,6 @@ function Character.new() : Character
 			return self[index]
 		end
 	})
-	
-	function Character:TakeDamage(Damage: number)
-		self.Health = self.Health - Damage
-		if self.Health <= 0 then
-			self.Died:Fire()
-		end
-	end
-
-	function Character:EquipItem(Item: Item.Item)
-		if self.EquippedItem then
-			self.EquippedItem:Unequip(self.Owner)
-		end
-
-		self.EquippedItem = Item
-		Item:Equip(self.Owner)
-	end
-
-	function Character:UnequipItem()
-		if self.EquippedItem then
-			self.EquippedItem:Unequip(self.Owner)
-			self.EquippedItem = nil
-		end
-	end
-
-	
-
 	return Proxy
 end
 

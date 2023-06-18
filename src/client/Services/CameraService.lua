@@ -8,9 +8,12 @@ Camera.CameraType = Enum.CameraType.Scriptable
 CameraService.CameraHeight = 5
 CameraService.CameraDistance = 150
 
-Camera.FieldOfView = 6
+
+
+CameraService.FOV = 6
 
 function CameraService.Update(deltaTime: number)
+	Camera.FieldOfView = CameraService.FOV
 
 	local Character = Player.Character or Player.CharacterAdded:Wait()
 

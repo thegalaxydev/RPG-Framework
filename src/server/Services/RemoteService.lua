@@ -1,6 +1,6 @@
 local RemoteService = {}
 
-function RemoteService.InitializeRemoteFunction(name: string)
+function RemoteService.InitializeRemoteFunction(name: string) : RemoteFunction
 	local Remote = Instance.new("RemoteFunction")
 	Remote.Name = name
 
@@ -12,9 +12,11 @@ function RemoteService.InitializeRemoteFunction(name: string)
 		Remotes.Parent = game.ReplicatedStorage
 		Remote.Parent = Remotes
 	end
+	
+	return Remote
 end
 
-function RemoteService.InitializeRemoteEvent(name: string)
+function RemoteService.InitializeRemoteEvent(name: string) : RemoteEvent
 	local Remote = Instance.new("RemoteEvent")
 	Remote.Name = name
 
@@ -26,6 +28,8 @@ function RemoteService.InitializeRemoteEvent(name: string)
 		Remotes.Parent = game.ReplicatedStorage
 		Remote.Parent = Remotes
 	end
+
+	return Remote
 end
 
 return RemoteService

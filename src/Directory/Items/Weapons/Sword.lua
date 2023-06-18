@@ -1,7 +1,7 @@
 return {
 	Name = "Sword",
 	Cost = 10,
-	Model = game:GetService("ReplicatedStorage").Models.Weapons.Sword,
+	Model = game:GetService("ReplicatedStorage").Assets.Models.Weapons.Sword,
 	Icon = "rbxassetid://0",
-	MaxStack = 10
+	MaxStack = 1,
 }

@@ -13,7 +13,7 @@ ClientReplicationService.Callbacks = {
 			CharacterService.Characters[Player][index] = value
 		end 
 
-		print("Updated character.")
+		print("Updated character.", index, value)
 	end,
 	["SendMessage"] = function(msg, duration)
 		MessageService:SendMessage(msg, duration)
