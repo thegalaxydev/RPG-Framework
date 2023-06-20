@@ -15,9 +15,10 @@ export type ItemParameters = {
 	MaxStack: number?,
 	Rarity: Rarity,
 	Owner: Player,
+	Equippable: boolean?,
 	Tags : {
 		ItemType: string,
-	},
+	}?,
 	Callbacks: {
 		Use: (self: Item, player: Player) -> ()?,
 		Equip: (self: Item, player: Player) -> ()?,
@@ -32,10 +33,16 @@ function Item.new(params: ItemParameters)
 	self.Cost = params.Cost or 0
 	self.Model = params.Model
 	self.Icon = params.Icon
+	self.Equippable = params.Equippable or false
 	self.MaxStack = params.MaxStack or 1
 	self.Rarity = params.Rarity or Rarity.Common
 	self.Count = 1
+	self.Tags = params.Tags or {}
 	self.Owner = params.Owner
+
+	self.EquipAnimation = nil
+	self.UseAnimation = nil
+	self.UnequipAnimation = nil
 
 	self.Callbacks = {}
 	
@@ -53,7 +60,6 @@ function Item.new(params: ItemParameters)
 		if not self.Callbacks["Use"] then
 			warn(self.Name .. " does not have a use callback.")
 			if not self.Equipped then return end
-			print(self.Count)
 			self.Count -= 1
 	
 			if self.Count <= 0 then
@@ -67,10 +73,13 @@ function Item.new(params: ItemParameters)
 	end
 	
 	self.Equip = function(self)
+		if not self.Equippable then return end
+
 		if not self.Callbacks["Equip"] then
 			warn(self.Name .. " does not have an equip callback. Using default callback.")
 	
 			local character = self.Owner.Character or self.Owner.CharacterAdded:Wait()
+				
 			local model = self.Model:Clone()
 			model.Parent = character
 			

@@ -1,16 +1,20 @@
 local CharacterService = {}
 local Character = require(script.Parent.Parent.Classes.Character)
+local Event = require(script.Parent.Parent.Classes.Event)
 type Character = Character.Character
 
 CharacterService.Characters = {}
 
+CharacterService.CharacterAdded = Event.new()
+
 CharacterService.Effects = {
 	Invisible = {
 		Apply = function(character: Character, duration: number?)
+			
 			local playerCharacter = character.Player.Character or character.Player.CharacterAdded:Wait()
 
 			for _,v in pairs(playerCharacter:GetChildren()) do
-				if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+				if v:IsA("MeshPart") and v.Name ~= "HumanoidRootPart" then
 					v.Transparency = 0.5
 				end
 			end
@@ -20,7 +24,6 @@ CharacterService.Effects = {
 					CharacterService.Effects["Invisible"].Remove(character)
 				end)
 			end
-
 		end,
 		
 		Remove = function(character: Character)
@@ -36,20 +39,26 @@ CharacterService.Effects = {
 }
 
 function CharacterService.GetCharacterFromPlayer(player: Player) : Character
-	return CharacterService.Characters[player] or CharacterService.LoadCharacter(player)
+	local character = CharacterService.Characters[player.Name]
+
+	return character
 end
 
 function CharacterService.LoadCharacter(player: Player) : Character
 	local newCharacter = Character.new()
-	CharacterService.Characters[player] = newCharacter
+	CharacterService.Characters[player.Name] = newCharacter
+	
+	print(CharacterService.Characters)
 
 	newCharacter.Player = player
+
+	CharacterService.CharacterAdded:Fire(newCharacter)
 
 	return newCharacter
 end
 
 function CharacterService.UnloadCharacter(player: Player)
-	CharacterService.Characters[player] = nil
+	CharacterService.Characters[player.Name] = nil
 end
 
 return CharacterService

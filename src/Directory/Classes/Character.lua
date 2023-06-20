@@ -52,36 +52,8 @@ function Character.new() : Character
 	self.Changed = Event.new()
 	self.Died = Event.new()
 
-	function self:TakeDamage(Damage: number)
-		self.Health = self.Health - Damage
-		if self.Health <= 0 then
-			self.Died:Fire()
-		end
-	end
+	
 
-	function self:EquipItem(Item: Item.Item)
-		if self.EquippedItem then
-			self.EquippedItem:Unequip(self.Owner)
-		end
-		
-		
-		self.EquippedItem = Item
-		Item:Equip(self.Owner)
-	end
-
-	function self:UnequipItem()
-		if self.EquippedItem then
-			self.EquippedItem:Unequip(self.Owner)
-			self.EquippedItem = nil
-		end
-	end
-
-	function self:UseItem()
-		print(self.EquippedItem)
-		if self.EquippedItem then
-			self.EquippedItem:Use(self.Owner)
-		end
-	end
 
 	local Proxy = setmetatable({GetObject = function() return self end}, {	
 		__newindex = function(tab, index, value)
@@ -89,13 +61,16 @@ function Character.new() : Character
 				tab.Changed:Fire(index, value)
 			end
 
-			print(index, value)
-
 			if RunService:IsServer() and ReplicatedStorage:FindFirstChild("Remotes") then
 				local Remote = ReplicatedStorage.Remotes:FindFirstChild("ClientReplication")
 				
 				if Remote then
-					Remote:FireAllClients("CharacterChanged", index, value)
+					if index == "EquippedItem" then
+						print("equipped item changed", value)
+						Remote:FireClient(self.Player, "EquipItem", value.Name)
+					else
+						Remote:FireAllClients("CharacterChanged", index, value)
+					end
 				end
 			end
 
@@ -109,9 +84,104 @@ function Character.new() : Character
 	return Proxy
 end
 
+function Character:TakeDamage(Damage: number)
+	self.Health = self.Health - Damage
+	if self.Health <= 0 then
+		self.Died:Fire()
+	end
+end
+
+-- This will return multiple items if there are multiple items with the same name
+function Character:GetItem(itemName: string) : {[any]: any}
+	local itemQuery = {}
+	
+	for _, itemInfo in pairs(self.Inventory) do
+		if itemInfo.Item.Name == itemName then
+			table.insert(itemQuery, itemInfo)
+		end
+	end
+
+	return itemQuery
+end
+
+function Character:AddItem(item: Item.Item, count: number?)
+	local items = self:GetItem(item.Name)
+	local lowestNotFull = nil
+
+	count = count or 1
+
+	item.Owner = self.Player 
+	
+	
+	if #items == 0 then
+		local maxStack = item.MaxStack or 1
+		local remainder = count % maxStack
+		local stacks = math.floor(count / maxStack)
+		if maxStack < count then
+			for i = 1, stacks do
+				table.insert(self.Inventory, {Item = table.clone(item), Count = maxStack})
+			end
+			if remainder > 0 then
+				table.insert(self.Inventory, {Item = table.clone(item), Count = remainder})
+			end
+		else
+			table.insert(self.Inventory, {Item = table.clone(item), Count = count})
+		end
+
+		return 
+	end
 
 
+	for _, itemInfo in pairs(items) do
+		if itemInfo.Count < item.MaxStack then
+			if not lowestNotFull or itemInfo.Count < lowestNotFull.Count then
+				lowestNotFull = itemInfo
+			end
+		end
+	end
 
+	if lowestNotFull then
+		local lowestCount = lowestNotFull.Count
+		if count + lowestCount > item.MaxStack then
+			local fillCount = (item.MaxStack - lowestCount) 
+			local remainder = count - fillCount
+
+			lowestNotFull.Count = lowestNotFull.Count + fillCount
+
+			table.insert(self.Inventory, {Item = table.clone(item), Count = remainder})
+		else
+			lowestNotFull.Count = lowestNotFull.Count + count
+		end
+	end
+end
+
+function Character:EquipItem(index: number)
+
+	
+	local itemInfo = self.Inventory[index] 
+	if itemInfo and itemInfo.Item and itemInfo.Item.Equippable then
+
+		if self.EquippedItem then
+			self.EquippedItem:Unequip()
+		end
+
+		itemInfo.Item:Equip()
+		self.EquippedItem = itemInfo.Item
+	end
+end
+
+function Character:UseItem()
+	if self.EquippedItem then
+		self.EquippedItem:Use()
+	end
+end
+
+function Character:UnequipItem()
+	if self.EquippedItem then
+		self.EquippedItem:Unequip()
+		self.EquippedItem = nil
+	end
+end
 
 
 return Character

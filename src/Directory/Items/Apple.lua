@@ -35,7 +35,6 @@ return {
 
 		Use = function(self, player: Player)
 			if not self.Equipped then return end
-			print(self.Count)
 			self.Count -= 1
 
 			if self.Count <= 0 then

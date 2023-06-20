@@ -10,7 +10,7 @@ ServerReplicationService.Callbacks = {
 	end,
 
 	["UseItem"] = function(player: Player)
-		local character = CharacterService:GetCharacterFromPlayer(player)
+		local character = CharacterService.GetCharacterFromPlayer(player)
 
 		character:UseItem()
 	end

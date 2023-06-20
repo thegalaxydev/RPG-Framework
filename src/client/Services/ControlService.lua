@@ -11,9 +11,12 @@ local ServerReplication = game.ReplicatedStorage.Remotes.ServerReplication
 
 ControlService.Keybinds = {
 	["ITEM_USE"] = {{Enum.UserInputType.MouseButton1}, function(actionName, inputState, inputObject)
+		if inputState ~= Enum.UserInputState.Begin then return end
 		local Character = CharacterService.GetCharacterFromPlayer(Player)
 
 		Character:UseItem()
+
+		ServerReplication:FireServer("UseItem")
 	end},
 
 	["ITEM_EQUIP_1"] = {{Enum.KeyCode.One}, function(actionName, inputState, inputObject) 
@@ -57,8 +60,10 @@ ControlService.Keybinds = {
 	end},
 
 	["SPRINT"] = {{Enum.KeyCode.LeftShift}, function(actionName, inputState, inputObject) 
-		local fov = CameraService.FOV
-		CameraService.FOV = inputState == Enum.UserInputState.Begin and fov + 2 or fov - 2
+		if inputState == Enum.UserInputState.Cancel then return end
+		local fov = inputState == Enum.UserInputState.Begin and 8 or 6
+		CameraService.TweenCamera({FieldOfView = fov}, 0.2)
+
 		ServerReplication:FireServer("Sprint", inputState == Enum.UserInputState.Begin)
 	end},
 
