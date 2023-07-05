@@ -4,13 +4,24 @@ local Directory = require(ReplicatedStorage.Directory)
 local CharacterService = Directory.Retrieve("Services/CharacterService")
 local Item = Directory.Retrieve("Classes/Item")
 
+local DataService = require(script.Parent.DataService)
+
+
 local Assets = ReplicatedStorage.Assets
 local UI = Assets.UI
 local OverheadUI = UI:WaitForChild("OverheadUI")
 
+local PlayerData = DataService:CreateDataStoreInstance({
+	Name = "PlayerData",
+	AutoSaveInterval = 60,
+	ShouldAutoSave = true,
+
+	DefaultData = {
+		Character = {}
+	}
+})
 
 function PlayerService.CharacterAdded(Character: Model)
-	local Humanoid = Character:WaitForChild("Humanoid")
 	local Player = game.Players:GetPlayerFromCharacter(Character)
 	local HRP = Character:FindFirstChild("HumanoidRootPart")
 
@@ -28,15 +39,10 @@ function PlayerService.CharacterAdded(Character: Model)
 
 	facer.CFrame = HRP.CFrame * CFrame.new(Vector3.new(0,-2,-1)) * CFrame.Angles(0,math.rad(180),0)
 
-	Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-		newUI.HealthBackground.Health.Size = UDim2.new(Humanoid.Health / Humanoid.MaxHealth, 0, 1, 0)
-	end)
-
-	local playerCharacter = CharacterService.LoadCharacter(Player)
+	local playerCharacter = CharacterService.GetCharacterFromPlayer(Player)
 
 	playerCharacter.Changed:Connect(function(index, value)
-		Humanoid.Health = playerCharacter.Health
-		Humanoid.MaxHealth = playerCharacter.MaxHealth
+		newUI.HealthBackground.Health.Size = UDim2.new(playerCharacter.Health / playerCharacter.MaxHealth, 0, 1, 0)
 	end)
 
 	playerCharacter.MaxHealth = 150
@@ -50,7 +56,23 @@ function PlayerService.CharacterAdded(Character: Model)
 end
 
 function PlayerService.PlayerAdded(Player: Player)
+	local data = PlayerData:Load(Player.UserId)
 
+	print(data)
+	
+	local playerCharacter = CharacterService.LoadCharacter(Player)
+
+	if # data.Character == 0 then
+		print(playerCharacter:GetObject())
+		PlayerData:SetData(Player.UserId, "Character", CharacterService.PackData(playerCharacter))
+
+	else
+		CharacterService.SetData(playerCharacter, data.Character)
+	end
+
+	PlayerData:Save(Player.UserId)
+
+	
 end
 	
 

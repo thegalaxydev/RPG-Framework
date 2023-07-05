@@ -2,6 +2,7 @@ local ClientReplicationService = {}
 local Directory = require(game:GetService("ReplicatedStorage").Directory)
 local Player = game.Players.LocalPlayer
 local CharacterService = Directory.Retrieve("Services/CharacterService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MessageService = require(script.Parent.MessageService)
 local TS = game:GetService("TweenService")
 
@@ -44,13 +45,11 @@ ClientReplicationService.Callbacks = {
 		gui.Size = UDim2.new(1,0,1,0)
 		gui.Adornee = part
 
-		local text = Instance.new("TextLabel")
+		local text = ReplicatedStorage.Assets.UI.DamageText:Clone()
 		text.Text = tostring(damage)
-		text.TextColor3 = Color3.fromRGB(102, 23, 23)
-		text.BackgroundTransparency = 1
-		text.TextScaled = true
-		text.Size = UDim2.new(1,0,1,0)
 		text.Parent = gui
+
+		text.FontFace = Font.new("rbxassetid://12187375194")
 		
 		gui.StudsOffset = Vector3.new(math.random(-3,3), math.random(-3,3), math.random(-3,3))
 		local tweenInfo = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
@@ -60,9 +59,7 @@ ClientReplicationService.Callbacks = {
 
 
 		game:GetService("Debris"):AddItem(part, guiTween.TweenInfo.Time)
-
-
-		
+		game:GetService("Debris"):AddItem(gui, guiTween.TweenInfo.Time)
 	end,
 	
 	["EquipItem"] = function(name: string)

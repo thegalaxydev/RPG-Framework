@@ -3,7 +3,8 @@ local Directory = require(game:GetService("ReplicatedStorage").Directory)
 
 local RemoteService = require(script.Services.RemoteService)
 local ServerReplicationService = require(script.Services.ServerReplicationService)
-local CharacterService = Directory.Retrieve("Services/CharacterService")
+
+
 
 local Item = Directory.Retrieve("Classes/Item")
 

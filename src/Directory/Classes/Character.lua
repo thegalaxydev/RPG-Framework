@@ -44,16 +44,17 @@ function Character.new() : Character
 		Torso = nil,
 		Arms = nil,
 		Legs = nil,
-		Feet = nil
+		Feet = nil,
+
+		MainHand = nil,
+		OffHand = nil,
+		
 	}
 
 	self.EquippedItem = nil
 
 	self.Changed = Event.new()
 	self.Died = Event.new()
-
-	
-
 
 	local Proxy = setmetatable({GetObject = function() return self end}, {	
 		__newindex = function(tab, index, value)
